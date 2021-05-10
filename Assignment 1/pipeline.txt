@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Repo1') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'repo1']], userRemoteConfigs: [[credentialsId: 'c8a232a5-de0e-47c5-9244-5e93b9c0bd5c', url: 'git@gitlab.com:prakharsachan/jenkins-assignment-1-repo-1.git']]])
+            }
+        }
+         stage('Repo2') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'repo2']], userRemoteConfigs: [[credentialsId: 'c8a232a5-de0e-47c5-9244-5e93b9c0bd5c', url: 'git@gitlab.com:prakharsachan/jenkins-assignment-1-repo-2.git']]])
+            }
+        }
+         stage('Script') {
+            steps {
+               sh '''cd repo2
+                chmod +x script.sh
+                bash script.sh'''
+            }
+        }
+    }
+}
+
