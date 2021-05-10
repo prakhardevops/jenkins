@@ -1,0 +1,35 @@
+def osType 
+node {
+    stage('Check Os') {
+        osType = checkOs()
+        echo " Machine OS is ${osType} "
+    }
+    stage('Task') {
+        if (osType == "Linux" )
+        {
+        sh 'apt list --installed  > package.txt'
+        }
+        if(osType == "Windows" )
+        {
+          bat 'dir'  
+        }
+    }
+}
+
+def checkOs(){
+    if (isUnix()) {
+        def uname = sh script: 'uname', returnStdout: true
+        if (uname.startsWith("Darwin")) {
+            return "Macos"
+        }
+        // Optionally add 'else if' for other Unix OS  
+        else {
+            return "Linux"
+        }
+    }
+    else {
+        return "Windows"
+    }
+}
+
+

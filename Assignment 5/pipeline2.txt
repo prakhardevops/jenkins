@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git') {
+            steps {
+               git credentialsId: 'c8a232a5-de0e-47c5-9244-5e93b9c0bd5c', url: 'git@gitlab.com:prakharsachan/spring3hibernate.git'
+            }
+        }
+        stage('Executing Goals') {
+            steps {
+                sh '''if [ $Goal = "clean" ]
+then
+mvn clean
+fi
+if [ $Goal = "test" ]
+then
+mvn test
+fi
+if [ $Goal = "package" ]
+then
+mvn package
+fi'''
+            }
+        }
+    }
+}
