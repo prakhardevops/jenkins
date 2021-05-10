@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    stages {
+        stage('Git') {
+            steps {
+                git credentialsId: 'c8a232a5-de0e-47c5-9244-5e93b9c0bd5c', url: 'git@gitlab.com:prakharsachan/spring3hibernate.git'
+            }
+        }
+        stage('Maven') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Run Parallel Scans') {
+            parallel {
+                stage('Skip Scan 1') {
+                     when {
+                expression { skip != "Scan 1" }
+                    }
+                    steps {
+                         withSonarQubeEnv(credentialsId: 'eaa291e7-071e-4fbc-8b21-8520b53bdadf',installationName: 'SonarCube AWS') {
+                    sh 'mvn sonar:sonar'
+                }
+                    }
+                }
+                stage('Skip Scan 2') {
+                     when {
+                expression { skip != "Scan 2" }
+                    }
+                    steps {
+                         withSonarQubeEnv(credentialsId: 'eaa291e7-071e-4fbc-8b21-8520b53bdadf',installationName: 'SonarCube AWS') {
+                    sh 'mvn sonar:sonar'
+                }                    }
+                }
+                
+            }
+        }
+        stage('Input') {
+            steps {
+                input('Do you want to proceed?')
+            }
+        }
+        stage('Nexus') {
+                    steps {
+                        nexusArtifactUploader artifacts: [[artifactId: 'Spring3HibernateApp', classifier: '', file: '/var/lib/jenkins/workspace/Jenkins Assignment 7/target/Spring3HibernateApp.war', type: 'war']], credentialsId: '2691b62a-8aa8-4332-a37a-819e631c4b4e', groupId: 'Spring3HibernateApp', nexusUrl: '3.15.138.47:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'Spring3HibernateApp', version: '1.0.0'
+                         }
+                }
+            
+    }
+}
